@@ -1,2 +1,1 @@
-# blinky-kong
-Blinky Kong LED Strip Game
+# Blinky Kong LED Strip Game

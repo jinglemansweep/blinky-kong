@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "blinky-kong"
+version = "0.1.0"
+description = "Blinky Kong LED Strip Game"
+authors = ["JingleManSweep <jinglemansweep@gmail.com>"]
+license = "Apache 2.0"
+readme = "README.md"
+packages = [{include = "blinky_kong"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+rich = "^12.5.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -2,13 +2,7 @@ import socket
 
 WLED_PROTOCOL_RGB = 2
 WLED_TIMEOUT = 3
-
-def send_wled_udp(host, port, pixels, timeout=WLED_TIMEOUT, protocol=WLED_PROTOCOL_RGB):
-    message = [protocol, timeout]
-    for pixel in pixels:
-        message += pixel.to_list()
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.sendto(bytearray(message), (host, port))
+WLED_OFFSET = 0
 
 class WLEDPixel:
     """WLED LED Pixel"""
@@ -24,6 +18,7 @@ class WLEDPixel:
     def to_list(self):
         return [self.r, self.g, self.b]
 
+PIXEL_OFF = WLEDPixel(0, 0, 0)
 
 class WLEDSprite:
     """WLED LED Sprite"""
@@ -39,14 +34,12 @@ class WLEDSprite:
     def move(self, strip, position):
         x = self.x + position
         if x < 0: x = 0
-        if x > strip.width: x = strip.width
+        if x >= strip.width: x = strip.width - 1
         self.x = x
 
 
 class WLEDStrip:
     """WLED LED Strip"""
-
-    pixel_off = WLEDPixel(0, 0, 0)
 
     def __init__(self, width=300, flip=False):
         self.width = width
@@ -60,14 +53,15 @@ class WLEDStrip:
         pass
 
     def process(self, sprites):
-        pixels = [WLEDPixel(0, 0, 0) for i in range(0, self.width)]
+        pixels = [PIXEL_OFF for i in range(0, self.width)]
         for sprite in sprites:
             pixels[sprite.x] = sprite.pixel if sprite.visible else self.pixel_off
         return pixels[::-1] if self.flip else pixels
 
     def render_console(self, pixels):
         out = ''
-        for pixel in pixels:
+        _pixels = pixels[::-1] if self.flip else pixels
+        for pixel in _pixels:
             if pixel.r == 0 and pixel.g == 0 and pixel.b == 0:
                 out += ' '
             elif pixel.r > 0 and pixel.g == 0 and pixel.b == 0:
@@ -78,3 +72,11 @@ class WLEDStrip:
                 out += '[bold blue]*[/bold blue]'    
         return out
 
+def send_wled_udp(host, port, pixels, offset=WLED_OFFSET, timeout=WLED_TIMEOUT, protocol=WLED_PROTOCOL_RGB):
+    message = [protocol, timeout]
+    for skip in range(0, offset):
+        message += PIXEL_OFF.to_list()
+    for pixel in pixels:
+        message += pixel.to_list()
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.sendto(bytearray(message), (host, port))

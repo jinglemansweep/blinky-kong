@@ -17,4 +17,4 @@ Run the application:
     ./src/main.py -h
 
     # Examples
-    ./src/main.py --host 10.0.2.86 --port 21324 --width 300 --invert
+    ./src/main.py --host 10.0.2.86 --port 21324 --width 100 --offset 180 --flip --console

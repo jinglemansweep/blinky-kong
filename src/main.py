@@ -36,20 +36,22 @@ ply2 = WLEDSprite(pxg, 1)
 
 sprites = [ply1, ply2]
 
-async def on_press(key):
-    if key == KEY_LEFT:
+def on_press(key):
+    if key.char == KEY_LEFT:
         ply1.move(strip, -1)
-    if key == KEY_RIGHT:
+    if key.char == KEY_RIGHT:
         ply1.move(strip, 1)
-    print(key)
 
 async def on_release(key):
     pass
 
 keyboard_listener = keyboard.Listener(
-    on_press=on_press,
-    on_release=on_release
-).start()
+    on_press=on_press
+)
+
+keyboard_listener.start()
+
+console.clear()
 
 while True:
    
@@ -57,12 +59,12 @@ while True:
     
     if args.console:
         rendered = strip.render_console(pixels)
-        console.clear(home=True)
+        console.clear()
         out = strip.render_console(pixels)
         console.print(Panel(out, width=args.width + 4))
 
     if args.host and args.port: 
-        send_wled_udp(args.host, args.port, pixels)
+        send_wled_udp(args.host, args.port, pixels, args.offset)
 
     time.sleep(args.delay / 1000)
 
